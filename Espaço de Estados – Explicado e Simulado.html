@@ -32,7 +32,7 @@ canvas{width:100%;height:260px;background:var(--card);border:1px solid var(--bd)
 .res div{margin:6px 0}
 .btns button:hover{background:var(--ac);color:#fff}.rg{width:70px;accent-color:var(--ac)}.w{display:flex;flex-direction:column;gap:2px}canvas{height:280px}.tip b{color:var(--tx)}summary{font-size:1.02rem}</style></head><body>
 <header><h1>Espaço de Estados</h1><p>MCSDI – Teoria passo a passo + laboratório de simulação (baseado nas slides e no caderno de exercícios)</p></header>
-<nav id="nav"><button class="on" data-t="t1">1 · Teoria</button><button data-t="t2">2 · Laboratório</button><button data-t="t3">3 · FT → Formas canónicas</button><button data-t="t4">4 · Quiz do caderno</button></nav>
+<nav id="nav"><button class="on" data-t="t1">1 · Teoria</button><button data-t="t2">2 · Laboratório</button><button data-t="t3">3 · FT → Formas canónicas</button><button data-t="t4">4 · Quiz do caderno</button><button data-t="t5">5 · Circuitos elétricos</button></nav>
 <main>
 <section id="t1" class="on">
 <div class="tip">Ideia central: em vez de uma equação de ordem n, usamos n equações de 1.ª ordem. O <b>estado</b> x(t) guarda toda a “memória” do sistema. Abre cada bloco e depois experimenta no Laboratório.</div>
@@ -89,10 +89,37 @@ canvas{width:100%;height:260px;background:var(--card);border:1px solid var(--bd)
 <div class="sm">Por defeito: exercício 3 do caderno, (s+3)/(s²+3s+2).</div>
 <div id="fres" class="res"></div></div></section>
 <section id="t4"><div id="quiz"></div></section>
+<section id="t5">
+<div class="tip">Começa pelos blocos de teoria (do mais simples para o mais complexo) e depois usa o simulador: monta um circuito, vê os <b>nós</b>, as <b>malhas</b> e confirma que as leis de Kirchhoff dão sempre 0.</div>
+<details open><summary>1. Tensão, corrente e resistência (Lei de Ohm)</summary>
+<p><b>Corrente</b> i (ampère, A) é o “caudal” de cargas num fio. <b>Tensão</b> v (volt, V) é a “diferença de pressão” entre dois pontos: é ela que empurra a corrente. Analogia com água: tensão = pressão, corrente = caudal, resistência = estreitamento do cano.</p>
+<div class="eq">Resistência: v = R·i &nbsp; (R em ohm, Ω). Potência: p = v·i</div></details>
+<details open><summary>2. Condensador e bobina (indutância): os elementos com “memória”</summary>
+<div class="eq">Condensador: i = C·dv/dt &nbsp;|&nbsp; Bobina: v = L·di/dt</div>
+<p><b>Condensador C</b> (farad) guarda energia no campo elétrico: a sua <b>tensão não muda instantaneamente</b> (como um balde que demora a encher). <b>Bobina L</b> (henry) guarda energia no campo magnético: a sua <b>corrente não muda instantaneamente</b> (como um volante pesado que demora a acelerar).</p>
+<p>Em regime estacionário (DC, tudo parado): C comporta-se como <b>circuito aberto</b> (i = 0) e L como <b>curto‑circuito</b> (v = 0). Por isso, em espaço de estados, as variáveis de estado são v<sub>C</sub> e i<sub>L</sub>: uma por cada C e L.</p></details>
+<details><summary>3. Série e paralelo</summary>
+<p><b>Série</b>: mesma corrente em todos; as tensões somam‑se (R<sub>eq</sub> = R₁ + R₂). <b>Paralelo</b>: mesma tensão em todos; as correntes somam‑se (1/R<sub>eq</sub> = 1/R₁ + 1/R₂). Divisor de tensão (série): v<sub>R2</sub> = v·R₂/(R₁+R₂).</p></details>
+<details open><summary>4. Nós, ramos e malhas + leis de Kirchhoff</summary>
+<p><b>Ramo</b>: um componente. <b>Nó</b>: ponto onde se ligam dois ou mais ramos (o nó 0 é a “terra”, potencial de referência 0 V). <b>Malha</b>: caminho fechado que percorre ramos sem repetir nós.</p>
+<div class="eq">KCL (nós): Σ correntes que saem de um nó = 0 (o que entra, sai)<br>KVL (malhas): Σ quedas de tensão ao longo de uma malha = 0<br>Nº de malhas independentes = ramos − nós + 1</div>
+<p>Método: (1) escolhe a terra; (2) marca o sentido das correntes (se der negativo, era ao contrário); (3) escreve KVL em cada malha e KCL nos nós; (4) resolve. O simulador abaixo faz exatamente isto (análise nodal) e <b>mostra a verificação</b>.</p></details>
+<details><summary>5. Exemplo: RLC série → espaço de estados</summary>
+<p>Fonte u, R, L, C em série. KVL: u = R·i + L·di/dt + v<sub>C</sub>, e i = C·dv<sub>C</sub>/dt. Com x = [v<sub>C</sub> i<sub>L</sub>]ᵀ:</p>
+<div class="eq">v̇<sub>C</sub> = i<sub>L</sub>/C &nbsp;;&nbsp; i̇<sub>L</sub> = (u − R·i<sub>L</sub> − v<sub>C</sub>)/L<br>A = [0 1/C ; −1/L −R/L], B = [0 ; 1/L], C = [1 0]</div>
+<p>Os valores próprios de A dão a resposta: ζ = (R/2)·√(C/L) &lt; 1 → oscila (subamortecido). Experimenta no simulador mudar R e vê a oscilação aparecer e desaparecer.</p></details>
+<div class="card"><h2>Simulador de circuitos (análise nodal, condições iniciais nulas)</h2>
+<div class="sm">A fonte Vs liga sempre o nó 1 à terra (nó 0). Liga os componentes entre nós numerados (0, 1, 2, 3…). Ex.: R1 entre nós 1 e 2, C1 entre 2 e 0.</div>
+<div class="btns" id="cpre"></div><div id="crows"></div>
+<div class="btns" id="cadd"><button class="go" data-add="R">+ Resistência</button><button class="go" data-add="C">+ Condensador</button><button class="go" data-add="L">+ Bobina</button></div>
+<div class="row"><div><label>Fonte Vs (V)</label><br><input id="vs" value="10"></div><div><label>Tipo</label><br><select id="wf"><option value="step">degrau (liga em t=0)</option><option value="sin">seno</option></select></div><div><label>Freq. seno (Hz)</label><br><input id="fr" value="500"></div><div><label>Duração (ms)</label><br><input id="tm" value="10"></div></div></div>
+<div class="grid"><div><canvas id="cv5"></canvas><div class="sm">Tensão em cada nó (V) <span id="lg5"></span></div></div><div><canvas id="cv6"></canvas><div class="sm">Corrente em cada ramo (mA) <span id="lg6"></span></div></div></div>
+<div class="card"><div class="row"><div><label>Instante a analisar: <b id="tl"></b></label><br><input id="ti" type="range" min="0" max="100" value="100" style="width:240px"></div><div><label>Destacar malha</label><br><select id="lp"></select></div></div><canvas id="cv4" style="margin-top:8px"></canvas><div class="sm">Esquema: ● = nós, linhas = ramos (laranja R, azul C, verde L, roxo fonte). A seta mostra o sentido real da corrente nesse instante.</div><div class="res" id="cres"></div></div>
+</section>
 </main>
 <script>
 const $=id=>document.getElementById(id),f=id=>parseFloat($(id).value)||0,r=x=>Math.abs(x)<1e-9?0:+x.toFixed(4);
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button,section").forEach(e=>e.classList.remove("on"));b.classList.add("on");$(b.dataset.t).classList.add("on");run();fc()});
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button,section").forEach(e=>e.classList.remove("on"));b.classList.add("on");$(b.dataset.t).classList.add("on");run();fc();circ()});
 const mat=(M)=>`<span class="mat" style="--n:${M[0].length}">${M.flat().map(v=>`<span>${typeof v=="number"?r(v):v}</span>`).join("")}</span>`;
 const P=[["Massa‑mola (ẍ+3ẋ+2x=u)",[0,1,-2,-3,0,1,1,0,0,1,0]],["Exemplo slides (A diagonalizável)",[-3,1,1,-3,1,2,2,3,0,1,0]],["Ex. 12 caderno",[-6,4,-2,0,0,1,1,0,0,1,0]],["Subamortecido (ex. 14)",[-2,3,-3,-2,1,-3,6,5,0,1,0]],["Instável",[1,0,0,-2,1,1,1,1,0,1,1]],["Não observável (slides)",[2,0,-1,1,1,-1,1,1,0,1,1]],["Não controlável (ex. 34 adaptado)",[-4,0,0,-5,3,0,2,0,0,1,1]]];
 const ids=["a11","a12","a21","a22","b1","b2","c1","c2","d","x1","x2"];
@@ -100,7 +127,7 @@ P.forEach(([n,v])=>{const b=document.createElement("button");b.textContent=n;b.o
 ids.concat(["tmax"]).forEach(k=>$(k).oninput=run);$("u").onchange=run;
 ids.forEach((k,i)=>$(k).value=P[0][1][i]);
 ids.forEach(k=>{const e=$(k),s=document.createElement("input"),w=document.createElement("div");s.type="range";s.min=-10;s.max=10;s.step=.1;s.className="rg";s.id="r_"+k;w.className="w";e.parentNode.insertBefore(w,e);w.append(e,s);s.oninput=()=>{e.value=s.value;run()}});
-function plot(cv,S,o={}){const d=devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;cv.width=W*d;cv.height=H*d;const g=cv.getContext("2d");g.scale(d,d);const cs=getComputedStyle(document.documentElement),col=n=>cs.getPropertyValue(n).trim();
+function plot(cv,S,o={}){const d=devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;cv.width=W*d;cv.height=H*d;const g=cv.getContext("2d");g.scale(d,d);const cs=getComputedStyle(document.documentElement),col=n=>n[0]=="-"?cs.getPropertyValue(n).trim():n;
 let xs=[0],ys=[0];S.forEach(s=>{xs.push(...s.x);ys.push(...s.y)});let x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
 if(x1-x0<1e-6)x1=x0+1;if(y1-y0<1e-6)y1=y0+1;const px=(x1-x0)*.06,py=(y1-y0)*.08;x0-=px;x1+=px;y0-=py;y1+=py;
 const X=v=>30+(v-x0)/(x1-x0)*(W-40),Y=v=>H-22-(v-y0)/(y1-y0)*(H-34);
@@ -149,7 +176,48 @@ $("fres").innerHTML=`<h3>Forma canónica controlável</h3><div>ẋ = ${mat([[0,1
 <div class="sm">Atenção: a observável usa B=[b₁−a₁b₀ ; b₂−a₂b₀] e a controlável C=[b₂−a₂b₀ , b₁−a₁b₀] (como nas soluções do caderno).</div>
 <button class="go" id="send">Simular a forma controlável no Laboratório</button>`;
 $("send").onclick=()=>{[-0,1,-a2,-a1,0,1,c[0],c[1],b0,1,0].forEach((v,i)=>$(ids[i]).value=v);document.querySelector('[data-t="t2"]').click()}}
-["fa1","fa2","fb0","fb1","fb2"].forEach(k=>$(k).oninput=fc);addEventListener("resize",run);
+["fa1","fa2","fb0","fb1","fb2"].forEach(k=>$(k).oninput=fc);addEventListener("resize",()=>{run();circ()});
+let CP=[{t:"R",a:1,b:2,v:20},{t:"L",a:2,b:3,v:10},{t:"C",a:3,b:0,v:10}];
+const UN={R:"Ω",C:"µF",L:"mH"},TC={R:"#ea580c",C:"#2563eb",L:"#16a34a",V:"#a855f7"},NC=["#2563eb","#ea580c","#16a34a","#a855f7","#e11d48","#0891b2"];
+[["RC série",[["R",1,2,1000],["C",2,0,1]],6],["RL série",[["R",1,2,100],["L",2,0,100]],6],["RLC série",[["R",1,2,20],["L",2,3,10],["C",3,0,10]],10],["Divisor de tensão",[["R",1,2,1000],["R",2,0,2000]],1],["2 malhas (R‑C | R‑L)",[["R",1,2,100],["C",2,0,10],["R",2,3,50],["L",3,0,20]],10]].forEach(([n,cs,tm])=>{const bt=document.createElement("button");bt.textContent=n;bt.onclick=()=>{CP=cs.map(([t,a,b,v])=>({t,a,b,v}));$("tm").value=tm;rows();circ()};$("cpre").appendChild(bt)});
+function rows(){$("crows").innerHTML=CP.map((c,k)=>`<div class="row" style="margin:3px 0"><select data-k="${k}" data-f="t">${["R","C","L"].map(t=>`<option ${t==c.t?"selected":""}>${t}</option>`).join("")}</select> nós <input data-k="${k}" data-f="a" value="${c.a}" style="width:46px"> – <input data-k="${k}" data-f="b" value="${c.b}" style="width:46px"> valor <input data-k="${k}" data-f="v" value="${c.v}"> <span class="sm">${UN[c.t]}</span> <button class="go" data-del="${k}">✕</button></div>`).join("")}
+$("crows").oninput=e=>{const d=e.target.dataset;if(d.f==null)return;const x=e.target.value;CP[d.k][d.f]=d.f=="t"?x:d.f=="v"?(parseFloat(x)||0):Math.max(0,Math.round(+x)||0);if(d.f=="t")rows();circ()};
+$("crows").onclick=e=>{const k=e.target.dataset.del;if(k!=null){CP.splice(k,1);rows();circ()}};
+$("cadd").onclick=e=>{const t=e.target.dataset.add;if(t){CP.push({t,a:1,b:0,v:t=="R"?100:10});rows();circ()}};
+["vs","wf","fr","tm","ti","lp"].forEach(k=>$(k).oninput=circ);rows();
+function gs(A,b){const n=b.length;for(let i=0;i<n;i++){let p=i;for(let j=i+1;j<n;j++)if(Math.abs(A[j][i])>Math.abs(A[p][i]))p=j;[A[i],A[p]]=[A[p],A[i]];[b[i],b[p]]=[b[p],b[i]];for(let j=i+1;j<n;j++){const f=A[j][i]/A[i][i];for(let k=i;k<n;k++)A[j][k]-=f*A[i][k];b[j]-=f*b[i]}}const x=Array(n).fill(0);for(let i=n-1;i>=0;i--){let s=b[i];for(let k=i+1;k<n;k++)s-=A[i][k]*x[k];x[i]=s/A[i][i]}return x}
+function circ(){if(!$("t5").classList.contains("on"))return;
+const nm=(()=>{const c={R:0,C:0,L:0};return CP.map(x=>x.t+(++c[x.t]))})(),N=Math.max(1,...CP.flatMap(c=>[c.a,c.b])),Vs=+$("vs").value||0,wf=$("wf").value,T=(+$("tm").value||10)*1e-3,M=600,h=T/M,fr=+$("fr").value||500;
+const g=c=>c.t=="R"?1/Math.max(c.v,1e-9):c.t=="C"?c.v*1e-6/h:h/Math.max(c.v*1e-3,1e-12);
+let vp=CP.map(()=>0),il=CP.map(()=>0);const Hn=[...Array(N+1)].map(()=>[0]),Hi=CP.map(()=>[0]),Hs=[0],Ht=[0];
+for(let s=1;s<=M;s++){const t=s*h,u=wf=="sin"?Vs*Math.sin(2*Math.PI*fr*t):Vs,n=N+1,A=[...Array(n)].map(()=>Array(n).fill(0)),B=Array(n).fill(0);
+CP.forEach((c,k)=>{const G=g(c),inj=c.t=="C"?G*vp[k]:c.t=="L"?-il[k]:0;[[c.a,1],[c.b,-1]].forEach(([p,sg])=>{if(p>0){A[p-1][p-1]+=G;B[p-1]+=sg*inj}});if(c.a>0&&c.b>0){A[c.a-1][c.b-1]-=G;A[c.b-1][c.a-1]-=G}});
+for(let i=0;i<N;i++)A[i][i]+=1e-9;A[0][N]=1;A[N][0]=1;B[N]=u;
+const x=gs(A,B),V=[0,...x.slice(0,N)];
+CP.forEach((c,k)=>{const vv=V[c.a]-V[c.b],G=g(c),i=c.t=="R"?vv/Math.max(c.v,1e-9):c.t=="C"?G*(vv-vp[k]):(il[k]+=G*vv);vp[k]=vv;Hi[k].push(i)});
+for(let j=1;j<=N;j++)Hn[j].push(V[j]);Hs.push(-x[N]);Ht.push(t*1e3)}
+const sv=[];for(let j=1;j<=N;j++)sv.push({x:Ht,y:Hn[j],c:NC[(j-1)%6]});plot($("cv5"),sv,{xl:"t (ms)"});$("lg5").innerHTML=sv.map((s,j)=>`<span style="color:${s.c}">■ nó ${j+1}</span>`).join(" ");
+const si=CP.map((c,k)=>({x:Ht,y:Hi[k].map(v=>v*1e3),c:TC[c.t]}));si.push({x:Ht,y:Hs.map(v=>v*1e3),c:TC.V});plot($("cv6"),si,{xl:"t (ms)"});$("lg6").innerHTML=si.map((s,k)=>`<span style="color:${s.c}">■ ${k<CP.length?nm[k]:"Vs"}</span>`).join(" ");
+const idx=Math.round($("ti").value/100*M),V=[0,...Hn.slice(1).map(a=>a[idx])],I=CP.map((c,k)=>Hi[k][idx]),Is=Hs[idx];$("tl").textContent=r(Ht[idx])+" ms";
+let o=`<h3>Nós (potencial face à terra)</h3>`+V.map((v,j)=>`nó ${j}${j?"":" (terra)"}: <b>${r(v)} V</b>`).join(" · ");
+o+=`<h3>Componentes (sentido da corrente: nó a → nó b)</h3>`+CP.map((c,k)=>`<div><span style="color:${TC[c.t]}">■</span> <b>${nm[k]}</b> (${c.a}→${c.b}): v = ${r(V[c.a]-V[c.b])} V, i = ${r(I[k]*1e3)} mA</div>`).join("")+`<div><span style="color:${TC.V}">■</span> <b>Vs</b> fornece ${r(Is*1e3)} mA</div>`;
+o+=`<h3>Lei dos Nós (KCL): Σ correntes que saem = 0</h3>`+V.slice(1).map((_,jj)=>{const j=jj+1;let s=0,tt=[];CP.forEach((c,k)=>{if(c.a==c.b)return;if(c.a==j){s+=I[k];tt.push("+"+nm[k])}if(c.b==j){s-=I[k];tt.push("−"+nm[k])}});if(j==1){s-=Is;tt.push("−Vs")}return `<div>Nó ${j}: ${tt.join(" ")||"—"} = ${r(s*1e3)} mA ✓</div>`}).join("");
+const E=CP.map((c,k)=>({a:c.a,b:c.b,nm:nm[k]})).concat([{a:1,b:0,nm:"Vs"}]),par={0:null},q=[0],tr=new Set();
+while(q.length){const x=q.shift();E.forEach((e,i)=>{const y=e.a==x?e.b:e.b==x?e.a:-1;if(y>=0&&!(y in par)){par[y]={p:x,e:i};tr.add(i);q.push(y)}})}
+const ch=n=>{const ns=[n],es=[];while(n!=0){if(!par[n])return null;es.push(par[n].e);n=par[n].p;ns.push(n)}return{ns,es}};
+const LP=[];E.forEach((e,i)=>{if(tr.has(i))return;const ca=ch(e.a),cb=ch(e.b);if(!ca||!cb)return;const ia=ca.ns.findIndex(n=>cb.ns.includes(n)),ib=cb.ns.indexOf(ca.ns[ia]),W=[{e:i,f:e.a,t:e.b}];for(let m=0;m<ib;m++)W.push({e:cb.es[m],f:cb.ns[m],t:cb.ns[m+1]});for(let m=ia-1;m>=0;m--)W.push({e:ca.es[m],f:ca.ns[m+1],t:ca.ns[m]});LP.push(W)});
+o+=`<h3>Lei das Malhas (KVL): Σ quedas de tensão = 0</h3><div class="sm">Malhas independentes = ramos − nós + 1 = ${E.length} − ${N+1} + 1 = ${E.length-N}</div>`+(LP.map((W,m)=>{let s=0;const tt=W.map(z=>{const d=V[z.f]-V[z.t];s+=d;return `${E[z.e].nm} (${r(d)} V)`});return `<div><b>Malha ${m+1}:</b> ${tt.join(" + ")} = ${r(s)} V ✓</div>`}).join("")||"<div>Sem malhas fechadas.</div>");
+o+=`<div class="tip">Variáveis de estado deste circuito ≈ nº de C + nº de L = ${CP.filter(c=>c.t!="R").length} (ordem do sistema).</div>`;$("cres").innerHTML=o;
+const cur=$("lp").value;$("lp").innerHTML=`<option value="0">nenhuma</option>`+LP.map((_,m)=>`<option value="${m+1}">Malha ${m+1}</option>`).join("");if(cur<=LP.length)$("lp").value=cur;
+const cv=$("cv4"),d=devicePixelRatio||1,W2=cv.clientWidth,H2=cv.clientHeight;cv.width=W2*d;cv.height=H2*d;const g2=cv.getContext("2d");g2.scale(d,d);g2.font="12px sans-serif";const cs=getComputedStyle(document.documentElement),tx=cs.getPropertyValue("--tx").trim(),cd=cs.getPropertyValue("--card").trim();
+const PP=V.map((_,j)=>{if(!j)return[W2/2,H2-40];const a=Math.PI*(N>1?.92-(j-1)*.84/(N-1):.5);return[W2/2+(W2/2-60)*Math.cos(a),H2-80-(H2-140)*Math.sin(a)]});
+const cnt={};E.forEach(e=>{e.key=[e.a,e.b].sort()+"";e.o=cnt[e.key]=(cnt[e.key]||0)+1});
+const sel=+$("lp").value-1,hl=sel>=0&&LP[sel]?LP[sel].map(z=>z.e):[];
+E.forEach((e,i)=>{if(e.a==e.b)return;const p0=PP[e.a],p1=PP[e.b],n=cnt[e.key],bd2=(e.o-1-(n-1)/2)*90,dx=p1[0]-p0[0],dy=p1[1]-p0[1],l=Math.hypot(dx,dy)||1,cx=(p0[0]+p1[0])/2-dy/l*bd2,cy=(p0[1]+p1[1])/2+dx/l*bd2,lx=.25*p0[0]+.5*cx+.25*p1[0],ly=.25*p0[1]+.5*cy+.25*p1[1],src=i==CP.length;
+g2.strokeStyle=src?TC.V:TC[CP[i].t];g2.lineWidth=hl.includes(i)?8:3;g2.beginPath();g2.moveTo(...p0);g2.quadraticCurveTo(cx,cy,...p1);g2.stroke();
+const ie=src?-Is:I[i];if(Math.abs(ie)>1e-9){const sg=ie>0?1:-1,ux=dx/l*sg,uy=dy/l*sg;g2.fillStyle=tx;g2.beginPath();g2.moveTo(lx+ux*8,ly+uy*8);g2.lineTo(lx-ux*5-uy*5,ly-uy*5+ux*5);g2.lineTo(lx-ux*5+uy*5,ly-uy*5-ux*5);g2.fill()}
+const s=e.nm+" "+(src?Vs+"V":CP[i].v+UN[CP[i].t]),tw=g2.measureText(s).width;g2.fillStyle=cd;g2.fillRect(lx-tw/2-2,ly-26,tw+4,15);g2.fillStyle=tx;g2.fillText(s,lx-tw/2,ly-14)});
+PP.forEach((p,j)=>{g2.fillStyle=cd;g2.strokeStyle=tx;g2.lineWidth=2;g2.beginPath();g2.arc(p[0],p[1],12,0,7);g2.fill();g2.stroke();g2.fillStyle=tx;g2.fillText(j,p[0]-3.5,p[1]+4);if(!j)g2.fillText("terra",p[0]-16,p[1]+28)})}
 const Q=[{q:"A=[−2 3; −3 −2]. Valores próprios?",o:["2 ± j3","−2 ± j3","−3 ± j2","3 ± j2"],a:1,e:"λ² + 4λ + 13 = 0 → λ = −2 ± j3. Parte real negativa e imaginária ≠ 0: estável e subamortecido (ex. 14)."},{q:"A=[−3 0; −1 −2]. Valores próprios?",o:["−3 e −2","3 e 2","−1 e −2","−3 e −1"],a:0,e:"Matriz triangular: os valores próprios estão na diagonal (ex. 13)."},{q:"Sistema diagonal com A=diag(−1,−2,+1). Estabilidade?",o:["Estável","Instável","Nada se pode concluir"],a:1,e:"Um único polo positivo (+1) basta para tornar o sistema instável (ex. 22/40)."},{q:"A=diag(−4,−5), B=[3;0], C=[2 0]. Controlável? Observável?",o:["Controlável e observável","Não controlável e não observável","Controlável e não observável","Não controlável e observável"],a:1,e:"Na forma diagonal, b₂ = 0 → modo x₂ não é excitado; c₂ = 0 → x₂ não aparece na saída. FT = 6/(s+4) (ex. 34)."},{q:"Diagrama: u → ×3 → ∫ (realimentação −2) → ×4 → y. Qual a FT?",o:["7/(s−2)","2/(s+4)","12/(s+2)","12/(s+3)"],a:2,e:"ẋ = −2x + 3u, y = 4x → Y/U = 4·3/(s+2) = 12/(s+2) (ex. 15)."},{q:"A=[1 −1; 6 −4], B=[1;−3], C=[−2 1]. Tem-se det Q ≠ 0 e det R = 0. Conclusão?",o:["Controlável e observável","Controlável e não observável","Não controlável e observável","Nenhum dos dois"],a:1,e:"det R = 0 → não observável. A FT simplifica para −5/(s+2): há cancelamento polo‑zero (ex. 18)."}];
 $("quiz").innerHTML=`<div class="card"><h2>Quiz com exercícios do caderno</h2><div id="sc" class="sm">Pontuação: 0/${Q.length}</div></div>`+Q.map((q,i)=>`<div class="card"><b>${i+1}. ${q.q}</b><div class="btns">${q.o.map((o,j)=>`<button data-i="${i}" data-j="${j}">${o}</button>`).join("")}</div><div class="sm" id="e${i}"></div></div>`).join("");
 let sc=0;$("quiz").onclick=e=>{const b=e.target;if(b.dataset.j==null||b.parentNode.dataset.done)return;const i=+b.dataset.i,j=+b.dataset.j,ok=j==Q[i].a;b.parentNode.dataset.done=1;if(ok)sc++;b.style.background=ok?"var(--ok)":"var(--bad)";b.style.color="#fff";$("e"+i).innerHTML=(ok?"✅ Certo. ":"❌ Errado. ")+Q[i].e;$("sc").textContent=`Pontuação: ${sc}/${Q.length}`};
