@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-PT"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espaço de Estados – Explicado e Simulado</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f27;--mu:#5b6472;--ac:#2563eb;--bd:#e1e5ec;--ok:#15803d;--bad:#b91c1c;--c1:#2563eb;--c2:#ea580c;--c3:#16a34a;--in:#f1f3f7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#12151b;--card:#1b2029;--tx:#e8ebf1;--mu:#9aa4b5;--ac:#6ea0ff;--bd:#2c3340;--ok:#4ade80;--bad:#f87171;--c1:#6ea0ff;--c2:#fb923c;--c3:#4ade80;--in:#252b36}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#12151b;--card:#1b2029;--tx:#e8ebf1;--mu:#9aa4b5;--ac:#6ea0ff;--bd:#2c3340;--ok:#4ade80;--bad:#f87171;--c1:#6ea0ff;--c2:#fb923c;--c3:#4ade80;--in:#252b36}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:28px 16px 18px;margin:0 0 4px;background:linear-gradient(120deg,#1d4ed8,#7c3aed);color:#fff}header>*{max-width:980px;margin-left:auto;margin-right:auto}h1{margin-top:0;margin-bottom:0;font-size:1.9rem}header p{margin-top:4px;margin-bottom:0;opacity:.92}
+nav{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;max-width:980px;margin:auto;display:flex;gap:6px;padding:8px 16px;overflow-x:auto}
+nav button{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:999px;cursor:pointer;font:inherit;white-space:nowrap}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{max-width:980px;margin:auto;padding:8px 16px 40px}section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px 18px;margin:14px 0;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+h2{font-size:1.15rem;margin:0 0 6px}h3{font-size:1rem;margin:10px 0 4px}
+details{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 14px;margin:10px 0}
+summary{cursor:pointer;font-weight:600}
+.eq{background:var(--in);border-radius:8px;padding:8px 12px;margin:8px 0;font-family:Georgia,"Times New Roman",serif;font-size:1.05rem;overflow-x:auto}
+.tip{border-left:4px solid var(--ac);padding:4px 10px;color:var(--mu);margin:8px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+label{font-size:.85rem;color:var(--mu)}
+input,select{background:var(--in);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:5px 6px;width:64px;font:inherit}select{width:auto}
+.mi{display:grid;gap:4px;grid-template-columns:repeat(2,70px);margin:4px 8px 4px 0}.mi.v{grid-template-columns:70px}
+.row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px 14px}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.btns button,.go{border:1px solid var(--ac);background:transparent;color:var(--ac);border-radius:8px;padding:6px 10px;cursor:pointer;font:inherit}
+canvas{width:100%;height:260px;background:var(--card);border:1px solid var(--bd);border-radius:10px}
+.mat{display:inline-grid;grid-template-columns:repeat(var(--n,2),auto);gap:2px 12px;padding:2px 8px;border-left:2px solid var(--tx);border-right:2px solid var(--tx);border-radius:6px;vertical-align:middle;margin:0 4px;font-family:Georgia,serif}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}.sm{font-size:.88rem;color:var(--mu)}
+.res div{margin:6px 0}
+.btns button:hover{background:var(--ac);color:#fff}.rg{width:70px;accent-color:var(--ac)}.w{display:flex;flex-direction:column;gap:2px}canvas{height:280px}.tip b{color:var(--tx)}summary{font-size:1.02rem}</style></head><body>
+<header><h1>Espaço de Estados</h1><p>MCSDI – Teoria passo a passo + laboratório de simulação (baseado nas slides e no caderno de exercícios)</p></header>
+<nav id="nav"><button class="on" data-t="t1">1 · Teoria</button><button data-t="t2">2 · Laboratório</button><button data-t="t3">3 · FT → Formas canónicas</button><button data-t="t4">4 · Quiz do caderno</button></nav>
+<main>
+<section id="t1" class="on">
+<div class="tip">Ideia central: em vez de uma equação de ordem n, usamos n equações de 1.ª ordem. O <b>estado</b> x(t) guarda toda a “memória” do sistema. Abre cada bloco e depois experimenta no Laboratório.</div>
+<details open><summary>1. Porquê espaço de estados?</summary>
+<p>A função de transferência só vale com condições iniciais nulas, para sistemas LTI e SISO, e não diz nada sobre o interior do sistema. O espaço de estados aceita condições iniciais, sistemas MIMO (várias entradas/saídas), não lineares e variantes no tempo, e mostra o estado interno.</p></details>
+<details open><summary>2. Estado e variáveis de estado</summary>
+<p><b>Estado</b>: menor conjunto de variáveis que, conhecidas em t₀ juntamente com a entrada para t ≥ t₀, determinam todo o comportamento futuro. Exemplo: num condensador, v<sub>C</sub>(t) = v<sub>C</sub>(t₀) + (1/C)∫i dτ — a tensão inicial é a memória. Escolha típica: <b>uma variável por elemento armazenador de energia</b> (C → tensão, L → corrente, massa → velocidade, mola → deslocamento) ou, numa EDO de ordem n, n variáveis (y, ẏ, …).</p>
+<p>O <b>espaço de estados</b> é o espaço n-dimensional cujos eixos são x₁,…,xₙ; o sistema descreve uma trajetória nele (vê o “retrato de fase” no Laboratório).</p></details>
+<details><summary>3. As equações do modelo</summary>
+<div class="eq">ẋ = A·x + B·u<br>y = C·x + D·u</div>
+<p>A (n×n) matriz do sistema; B (n×r) de entrada; C (m×n) de saída; D (m×r) transmissão direta. Exemplo massa‑mola‑amortecedor (M ẍ + B ẋ + K x = u), com x₁=x e x₂=ẋ:</p>
+<div class="eq">A = [0 1 ; −K/M −B/M], B = [0 ; 1/M], C = [1 0], D = 0</div></details>
+<details><summary>4. Função de transferência ↔ espaço de estados</summary>
+<div class="eq">G(s) = C(sI − A)<sup>−1</sup>B + D = det[sI−A −B ; C D] / det(sI−A)</div>
+<p>Os <b>valores próprios de A são os polos de G(s)</b>. Se algum polo não aparece em G(s) (cancelamento polo‑zero), o sistema não é controlável e/ou observável (ex. 18 do caderno).</p></details>
+<details><summary>5. Formas canónicas (a partir de Y/U = (b₀sⁿ+…+bₙ)/(sⁿ+a₁sⁿ⁻¹+…+aₙ))</summary>
+<p><b>Controlável</b>: A com 1’s na superdiagonal e última linha −aₙ … −a₁; B = [0…0 1]ᵀ; C = [bₙ−aₙb₀ … b₁−a₁b₀]; D = b₀. Útil no projeto de controladores.</p>
+<p><b>Observável</b>: é a dual (A<sub>o</sub>=A<sub>c</sub>ᵀ, B<sub>o</sub>=C<sub>c</sub>ᵀ, C<sub>o</sub>=B<sub>c</sub>ᵀ). Útil no projeto de observadores.</p>
+<p><b>Diagonal</b> (polos reais distintos, expansão em frações parciais): A=diag(−p₁…−pₙ), B=[1…1]ᵀ, C=[c₁…cₙ]. <b>Jordan</b>: para polos repetidos aparecem 1’s na superdiagonal do bloco. Podes gerar as duas primeiras no separador 3.</p></details>
+<details><summary>6. Valores próprios, vetores próprios e diagonalização</summary>
+<div class="eq">det(λI − A) = 0 → λ₁,…,λₙ &nbsp;|&nbsp; A·vᵢ = λᵢ·vᵢ</div>
+<p>Um vetor próprio é uma direção que A só estica (por λ), nunca roda. Com T = [v₁ v₂ … vₙ]:</p>
+<div class="eq">D = T<sup>−1</sup>·A·T (diagonal), &nbsp; ż = D z + T<sup>−1</sup>B u, &nbsp; y = C T z + D u &nbsp; (x = T z)</div>
+<p>Fica desacoplado: zᵢ(t)=e<sup>λᵢt</sup>zᵢ(0). No retrato de fase, as retas dos vetores próprios são “autoestradas” da trajetória.</p></details>
+<details><summary>7. Solução da equação de estados e matriz exponencial</summary>
+<div class="eq">x(t) = Φ(t)x(0) + ∫₀ᵗ Φ(t−τ)B u(τ) dτ, &nbsp; Φ(t)=e<sup>At</sup>=ℒ<sup>−1</sup>{(sI−A)<sup>−1</sup>}</div>
+<p>Três formas de calcular e<sup>At</sup>: série (I + At + A²t²/2! + …); <b>Laplace</b> (inverter sI−A e fazer frações parciais); <b>Cayley‑Hamilton</b>: e<sup>At</sup>=α₀(t)I+α₁(t)A, com αs obtidos de e<sup>λᵢt</sup>=α₀+α₁λᵢ. Propriedades: Φ(0)=I, Φ⁻¹(t)=Φ(−t), Φ(t₁+t₂)=Φ(t₁)Φ(t₂). O Laboratório mostra Φ(t) simbólica para polos reais distintos.</p></details>
+<details><summary>8. Controlabilidade e observabilidade</summary>
+<div class="eq">Q = [B AB … Aⁿ⁻¹B] &nbsp; (controlável ⇔ car(Q)=n, SISO: det Q ≠ 0)<br>R = [C ; CA ; … ; CAⁿ⁻¹] &nbsp; (observável ⇔ car(R)=n, SISO: det R ≠ 0)</div>
+<p>Controlável: existe u(t) que leva x de qualquer estado inicial a qualquer outro em tempo finito. Observável: x(0) pode ser deduzido de y(t). Atalho na <b>forma diagonal</b> (valores próprios distintos): controlável ⇔ todos os bᵢ ≠ 0; observável ⇔ todos os cᵢ ≠ 0.</p></details>
+</section>
+
+<section id="t2">
+<div class="card"><h2>Laboratório (sistema 2×2, SISO)</h2><div class="sm">Escolhe um exemplo e arrasta os sliders: polos, gráficos, campo de direções, controlabilidade e observabilidade atualizam em tempo real.</div>
+<div class="btns" id="pre"></div>
+<div class="row">
+<div><label>A</label><div class="mi"><input id="a11"><input id="a12"><input id="a21"><input id="a22"></div></div>
+<div><label>B</label><div class="mi v"><input id="b1"><input id="b2"></div></div>
+<div><label>C</label><div class="mi"><input id="c1"><input id="c2"></div></div>
+<div><label>D</label><div class="mi v"><input id="d"></div></div>
+<div><label>x(0)</label><div class="mi v"><input id="x1"><input id="x2"></div></div>
+<div><label>Entrada u(t)</label><br><select id="u"><option value="step">degrau unitário</option><option value="zero">u = 0 (resposta livre)</option><option value="sin">seno (ω=2)</option></select></div>
+<div><label>Duração (s)</label><br><input id="tmax" value="6"></div>
+</div></div>
+<div class="grid"><div><canvas id="cv1"></canvas><div class="sm">Resposta no tempo: <span style="color:var(--c1)">x₁</span>, <span style="color:var(--c2)">x₂</span>, <span style="color:var(--c3)">y</span></div></div>
+<div><canvas id="cv2"></canvas><div class="sm">Retrato de fase (x₁ vs x₂): as setas mostram para onde o sistema “empurra” o estado; ponto = x(0). Retas tracejadas = vetores próprios.</div></div><div><canvas id="cv3"></canvas><div class="sm">Plano s: ✕ = polos. Esquerda = estável, direita = instável; longe do eixo vertical = resposta rápida.</div></div></div>
+<div class="card res" id="res"></div></section>
+
+<section id="t3">
+<div class="card"><h2>De função de transferência para formas canónicas (2.ª ordem)</h2>
+<div class="eq">Y(s)/U(s) = (b₀s² + b₁s + b₂) / (s² + a₁s + a₂)</div>
+<div class="row"><div><label>a₁</label><br><input id="fa1" value="3"></div><div><label>a₂</label><br><input id="fa2" value="2"></div>
+<div><label>b₀</label><br><input id="fb0" value="0"></div><div><label>b₁</label><br><input id="fb1" value="1"></div><div><label>b₂</label><br><input id="fb2" value="3"></div></div>
+<div class="sm">Por defeito: exercício 3 do caderno, (s+3)/(s²+3s+2).</div>
+<div id="fres" class="res"></div></div></section>
+<section id="t4"><div id="quiz"></div></section>
+</main>
+<script>
+const $=id=>document.getElementById(id),f=id=>parseFloat($(id).value)||0,r=x=>Math.abs(x)<1e-9?0:+x.toFixed(4);
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button,section").forEach(e=>e.classList.remove("on"));b.classList.add("on");$(b.dataset.t).classList.add("on");run();fc()});
+const mat=(M)=>`<span class="mat" style="--n:${M[0].length}">${M.flat().map(v=>`<span>${typeof v=="number"?r(v):v}</span>`).join("")}</span>`;
+const P=[["Massa‑mola (ẍ+3ẋ+2x=u)",[0,1,-2,-3,0,1,1,0,0,1,0]],["Exemplo slides (A diagonalizável)",[-3,1,1,-3,1,2,2,3,0,1,0]],["Ex. 12 caderno",[-6,4,-2,0,0,1,1,0,0,1,0]],["Subamortecido (ex. 14)",[-2,3,-3,-2,1,-3,6,5,0,1,0]],["Instável",[1,0,0,-2,1,1,1,1,0,1,1]],["Não observável (slides)",[2,0,-1,1,1,-1,1,1,0,1,1]],["Não controlável (ex. 34 adaptado)",[-4,0,0,-5,3,0,2,0,0,1,1]]];
+const ids=["a11","a12","a21","a22","b1","b2","c1","c2","d","x1","x2"];
+P.forEach(([n,v])=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>{ids.forEach((k,i)=>$(k).value=v[i]);run()};$("pre").appendChild(b)});
+ids.concat(["tmax"]).forEach(k=>$(k).oninput=run);$("u").onchange=run;
+ids.forEach((k,i)=>$(k).value=P[0][1][i]);
+ids.forEach(k=>{const e=$(k),s=document.createElement("input"),w=document.createElement("div");s.type="range";s.min=-10;s.max=10;s.step=.1;s.className="rg";s.id="r_"+k;w.className="w";e.parentNode.insertBefore(w,e);w.append(e,s);s.oninput=()=>{e.value=s.value;run()}});
+function plot(cv,S,o={}){const d=devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;cv.width=W*d;cv.height=H*d;const g=cv.getContext("2d");g.scale(d,d);const cs=getComputedStyle(document.documentElement),col=n=>cs.getPropertyValue(n).trim();
+let xs=[0],ys=[0];S.forEach(s=>{xs.push(...s.x);ys.push(...s.y)});let x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+if(x1-x0<1e-6)x1=x0+1;if(y1-y0<1e-6)y1=y0+1;const px=(x1-x0)*.06,py=(y1-y0)*.08;x0-=px;x1+=px;y0-=py;y1+=py;
+const X=v=>30+(v-x0)/(x1-x0)*(W-40),Y=v=>H-22-(v-y0)/(y1-y0)*(H-34);
+g.strokeStyle=col("--bd");g.fillStyle=col("--mu");g.font="11px sans-serif";g.beginPath();g.moveTo(X(0),6);g.lineTo(X(0),H-22);g.moveTo(30,Y(0));g.lineTo(W-6,Y(0));g.stroke();
+g.fillText(r(y1),2,12);g.fillText(r(y0),2,H-24);g.fillText(r(x0),30,H-8);g.fillText(r(x1),W-40,H-8);g.fillText(o.xl||"",W/2-10,H-8);
+(o.lines||[]).forEach(v=>{const [vx,vy]=v;if(!vx&&!vy)return;g.setLineDash([5,4]);g.strokeStyle=col("--mu");g.beginPath();const k=1e3;g.moveTo(X(-vx*k),Y(-vy*k));g.lineTo(X(vx*k),Y(vy*k));g.stroke();g.setLineDash([])});
+if(o.field){for(let i=0;i<=10;i++)for(let j=0;j<=7;j++){const a=x0+(x1-x0)*i/10,b=y0+(y1-y0)*j/7,v=o.field(a,b),dx=v[0]/(x1-x0)*(W-40),dy=-v[1]/(y1-y0)*(H-34),n=Math.hypot(dx,dy)||1;g.strokeStyle=col("--bd");g.lineWidth=1.5;g.beginPath();g.moveTo(X(a),Y(b));g.lineTo(X(a)+dx/n*12,Y(b)+dy/n*12);g.stroke();g.fillStyle=col("--mu");g.beginPath();g.arc(X(a)+dx/n*12,Y(b)+dy/n*12,1.8,0,7);g.fill()}}
+S.forEach(s=>{if(s.pt){s.x.forEach((v,i)=>{const px=X(v),py=Y(s.y[i]);g.strokeStyle=col(s.c);g.lineWidth=3;g.beginPath();g.moveTo(px-6,py-6);g.lineTo(px+6,py+6);g.moveTo(px+6,py-6);g.lineTo(px-6,py+6);g.stroke()});return}g.strokeStyle=col(s.c);g.lineWidth=2;g.beginPath();s.x.forEach((v,i)=>i?g.lineTo(X(v),Y(s.y[i])):g.moveTo(X(v),Y(s.y[i])));g.stroke();if(o.dot){g.fillStyle=col(s.c);g.beginPath();g.arc(X(s.x[0]),Y(s.y[0]),4,0,7);g.fill()}});}
+function run(){if(!$("t2").classList.contains("on"))return;ids.forEach(k=>{const s=$("r_"+k);if(s)s.value=$(k).value});
+const A=[[f("a11"),f("a12")],[f("a21"),f("a22")]],B=[f("b1"),f("b2")],C=[f("c1"),f("c2")],D=f("d"),x0=[f("x1"),f("x2")],T=Math.max(.5,f("tmax")),ut=$("u").value;
+const tr=A[0][0]+A[1][1],dt=A[0][0]*A[1][1]-A[0][1]*A[1][0],disc=tr*tr/4-dt;let L,V=[],real=disc>=-1e-12;
+if(real){const s=Math.sqrt(Math.max(0,disc));L=[tr/2+s,tr/2-s];V=L.map(l=>{let v=[A[0][1],l-A[0][0]];if(!v[0]&&!v[1])v=[l-A[1][1],A[1][0]];if(!v[0]&&!v[1])v=Math.abs(l-A[0][0])<1e-9?[1,0]:[0,1];const n=Math.hypot(...v);return v.map(a=>a/n)})}
+else L=[[tr/2,Math.sqrt(-disc)],[tr/2,-Math.sqrt(-disc)]];
+const re=real?L:[L[0][0],L[1][0]],mx=Math.max(...re);
+const stab=mx<-1e-9?`<span class="ok">estável</span>`:mx>1e-9?`<span class="bad">instável</span>`:`<span class="bad">marginalmente estável</span>`;
+const AB=[A[0][0]*B[0]+A[0][1]*B[1],A[1][0]*B[0]+A[1][1]*B[1]],CA=[C[0]*A[0][0]+C[1]*A[1][0],C[0]*A[0][1]+C[1]*A[1][1]];
+const dQ=B[0]*AB[1]-B[1]*AB[0],dR=C[0]*CA[1]-C[1]*CA[0],ctl=Math.abs(dQ)>1e-9,obs=Math.abs(dR)>1e-9;
+const bad=(c,t)=>c?`<span class="ok">${t}</span>`:`<span class="bad">NÃO ${t.toLowerCase()}</span>`;
+const n1=C[0]*B[0]+C[1]*B[1]+0,k0=-C[0]*A[1][1]*B[0]+C[0]*A[0][1]*B[1]+C[1]*A[1][0]*B[0]-C[1]*A[0][0]*B[1];
+const num=[D,n1-D*tr,k0+D*dt],den=[1,-tr,dt];
+const pol=c=>{let s="";[2,1,0].forEach((p,i)=>{const v=r(c[i]);if(!v)return;s+=(s&&v>0?" + ":v<0?(s?" − ":"−"):"")+(Math.abs(v)==1&&p?"":Math.abs(v))+(p?"s"+(p>1?"²":""):"")});return s||"0"};
+let h=`<div><b>Valores próprios (polos):</b> ${real?`λ₁ = ${r(L[0])}, λ₂ = ${r(L[1])}`:`λ = ${r(L[0][0])} ± j${r(L[0][1])}`} → sistema ${stab}${!real?" (subamortecido: oscila)":""}</div>`;
+h+=`<div><b>Função de transferência:</b> G(s) = (${pol(num)}) / (${pol(den)})</div>`;
+h+=`<div><b>Controlabilidade:</b> Q = ${mat([[B[0],AB[0]],[B[1],AB[1]]])} det Q = ${r(dQ)} → ${bad(ctl,"Controlável")}</div>`;
+h+=`<div><b>Observabilidade:</b> R = ${mat([C,CA])} det R = ${r(dR)} → ${bad(obs,"Observável")}</div>`;
+if(!ctl||!obs)h+=`<div class="sm">Repara: com perda de controlabilidade/observabilidade, a FT pode ter cancelamento polo‑zero (ordem 1 em vez de 2).</div>`;
+if(real&&Math.abs(L[0]-L[1])>1e-9){const [l1,l2]=L,[v1,v2]=V,Tm=[[v1[0],v2[0]],[v1[1],v2[1]]],det=Tm[0][0]*Tm[1][1]-Tm[0][1]*Tm[1][0];
+if(Math.abs(det)>1e-9){const Ti=[[Tm[1][1]/det,-Tm[0][1]/det],[-Tm[1][0]/det,Tm[0][0]/det]],Bd=[Ti[0][0]*B[0]+Ti[0][1]*B[1],Ti[1][0]*B[0]+Ti[1][1]*B[1]],Cd=[C[0]*Tm[0][0]+C[1]*Tm[1][0],C[0]*Tm[0][1]+C[1]*Tm[1][1]];
+h+=`<div><b>Vetores próprios:</b> v₁ = ${mat([[v1[0]],[v1[1]]])} v₂ = ${mat([[v2[0]],[v2[1]]])}</div>`;
+h+=`<div><b>Forma diagonal</b> (x = T z): T = ${mat(Tm)} Λ = ${mat([[l1,0],[0,l2]])} B̃ = ${mat([[Bd[0]],[Bd[1]]])} C̃ = ${mat([Cd])}<div class="sm">Se algum b̃ᵢ = 0 → modo não controlável; se algum c̃ᵢ = 0 → modo não observável.</div></div>`;}
+const P1=[[0,1].map(j=>(A[0][j]-(j==0?l2:0))/(l1-l2)),[0,1].map(j=>(A[1][j]-(j==1?l2:0))/(l1-l2))],P2=[[0,1].map(j=>(A[0][j]-(j==0?l1:0))/(l2-l1)),[0,1].map(j=>(A[1][j]-(j==1?l1:0))/(l2-l1))];
+h+=`<div><b>Matriz exponencial</b> (Cayley‑Hamilton / Laplace): e<sup>At</sup> = e<sup>${r(l1)}t</sup>·${mat(P1)} + e<sup>${r(l2)}t</sup>·${mat(P2)}</div>`}
+else h+=`<div class="sm">e<sup>At</sup>: para polos complexos ou repetidos aparecem termos e<sup>σt</sup>cos(ωt)/sin(ωt) ou t·e<sup>λt</sup> (ver tabela de Laplace).</div>`;
+const sg=real?Math.max(...L):L[0][0],wn=real?0:Math.hypot(L[0][0],L[0][1]);let tx=mx<-1e-9?(real?`Sem oscilações; o polo mais lento (${r(sg)}) manda: o sistema estabelece em ≈ ${r(4/Math.abs(sg))} s.`:`Oscila e amortece: ωₙ = ${r(wn)} rad/s, ζ = ${r(-L[0][0]/wn)}; estabelece em ≈ ${r(4/Math.abs(L[0][0]))} s.`):"As trajetórias não convergem para zero (há polo com parte real ≥ 0).";
+h=`<div class="tip">💡 <b>Em resumo:</b> ${tx}</div>`+h+`<div class="sm">Passo 1 (valores próprios): det(λI−A) = λ² − (${r(tr)})λ + (${r(dt)}) = 0</div>`;
+$("res").innerHTML=h;
+const N=500,h2=T/N,u=t=>ut=="step"?1:ut=="sin"?Math.sin(2*t):0,fx=(x,t)=>[A[0][0]*x[0]+A[0][1]*x[1]+B[0]*u(t),A[1][0]*x[0]+A[1][1]*x[1]+B[1]*u(t)];
+let x=x0.slice(),ts=[],X1=[],X2=[],Y=[];for(let i=0;i<=N;i++){const t=i*h2;ts.push(t);X1.push(x[0]);X2.push(x[1]);Y.push(C[0]*x[0]+C[1]*x[1]+D*u(t));
+const k1=fx(x,t),k2=fx(x.map((v,j)=>v+h2/2*k1[j]),t+h2/2),k3=fx(x.map((v,j)=>v+h2/2*k2[j]),t+h2/2),k4=fx(x.map((v,j)=>v+h2*k3[j]),t+h2);x=x.map((v,j)=>v+h2/6*(k1[j]+2*k2[j]+2*k3[j]+k4[j]));if(!isFinite(x[0])||Math.abs(x[0])>1e9)break}
+plot($("cv1"),[{x:ts.slice(0,X1.length),y:X1,c:"--c1"},{x:ts.slice(0,X2.length),y:X2,c:"--c2"},{x:ts.slice(0,Y.length),y:Y,c:"--c3"}],{xl:"t (s)"});
+plot($("cv2"),[{x:X1,y:X2,c:"--c1"}],{dot:1,lines:real?V:[],xl:"x₁ (eixo vertical: x₂)",field:(a,b)=>[A[0][0]*a+A[0][1]*b,A[1][0]*a+A[1][1]*b]});
+plot($("cv3"),[{x:re,y:real?[0,0]:[L[0][1],L[1][1]],c:"--c2",pt:1}],{xl:"Re(s)  (vertical: Im)"})}
+function fc(){if(!$("t3").classList.contains("on"))return;const a1=f("fa1"),a2=f("fa2"),b0=f("fb0"),b1=f("fb1"),b2=f("fb2"),c=[b2-a2*b0,b1-a1*b0];
+$("fres").innerHTML=`<h3>Forma canónica controlável</h3><div>ẋ = ${mat([[0,1],[-a2,-a1]])}x + ${mat([[0],[1]])}u</div><div>y = ${mat([c])}x + ${r(b0)}u</div>
+<h3>Forma canónica observável (dual)</h3><div>ẋ = ${mat([[-a1,1],[-a2,0]])}x + ${mat([[c[1]],[c[0]]])}u</div><div>y = ${mat([[1,0]])}x + ${r(b0)}u</div>
+<div class="sm">Atenção: a observável usa B=[b₁−a₁b₀ ; b₂−a₂b₀] e a controlável C=[b₂−a₂b₀ , b₁−a₁b₀] (como nas soluções do caderno).</div>
+<button class="go" id="send">Simular a forma controlável no Laboratório</button>`;
+$("send").onclick=()=>{[-0,1,-a2,-a1,0,1,c[0],c[1],b0,1,0].forEach((v,i)=>$(ids[i]).value=v);document.querySelector('[data-t="t2"]').click()}}
+["fa1","fa2","fb0","fb1","fb2"].forEach(k=>$(k).oninput=fc);addEventListener("resize",run);
+const Q=[{q:"A=[−2 3; −3 −2]. Valores próprios?",o:["2 ± j3","−2 ± j3","−3 ± j2","3 ± j2"],a:1,e:"λ² + 4λ + 13 = 0 → λ = −2 ± j3. Parte real negativa e imaginária ≠ 0: estável e subamortecido (ex. 14)."},{q:"A=[−3 0; −1 −2]. Valores próprios?",o:["−3 e −2","3 e 2","−1 e −2","−3 e −1"],a:0,e:"Matriz triangular: os valores próprios estão na diagonal (ex. 13)."},{q:"Sistema diagonal com A=diag(−1,−2,+1). Estabilidade?",o:["Estável","Instável","Nada se pode concluir"],a:1,e:"Um único polo positivo (+1) basta para tornar o sistema instável (ex. 22/40)."},{q:"A=diag(−4,−5), B=[3;0], C=[2 0]. Controlável? Observável?",o:["Controlável e observável","Não controlável e não observável","Controlável e não observável","Não controlável e observável"],a:1,e:"Na forma diagonal, b₂ = 0 → modo x₂ não é excitado; c₂ = 0 → x₂ não aparece na saída. FT = 6/(s+4) (ex. 34)."},{q:"Diagrama: u → ×3 → ∫ (realimentação −2) → ×4 → y. Qual a FT?",o:["7/(s−2)","2/(s+4)","12/(s+2)","12/(s+3)"],a:2,e:"ẋ = −2x + 3u, y = 4x → Y/U = 4·3/(s+2) = 12/(s+2) (ex. 15)."},{q:"A=[1 −1; 6 −4], B=[1;−3], C=[−2 1]. Tem-se det Q ≠ 0 e det R = 0. Conclusão?",o:["Controlável e observável","Controlável e não observável","Não controlável e observável","Nenhum dos dois"],a:1,e:"det R = 0 → não observável. A FT simplifica para −5/(s+2): há cancelamento polo‑zero (ex. 18)."}];
+$("quiz").innerHTML=`<div class="card"><h2>Quiz com exercícios do caderno</h2><div id="sc" class="sm">Pontuação: 0/${Q.length}</div></div>`+Q.map((q,i)=>`<div class="card"><b>${i+1}. ${q.q}</b><div class="btns">${q.o.map((o,j)=>`<button data-i="${i}" data-j="${j}">${o}</button>`).join("")}</div><div class="sm" id="e${i}"></div></div>`).join("");
+let sc=0;$("quiz").onclick=e=>{const b=e.target;if(b.dataset.j==null||b.parentNode.dataset.done)return;const i=+b.dataset.i,j=+b.dataset.j,ok=j==Q[i].a;b.parentNode.dataset.done=1;if(ok)sc++;b.style.background=ok?"var(--ok)":"var(--bad)";b.style.color="#fff";$("e"+i).innerHTML=(ok?"✅ Certo. ":"❌ Errado. ")+Q[i].e;$("sc").textContent=`Pontuação: ${sc}/${Q.length}`};
+</script></body></html>
